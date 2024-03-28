@@ -6,10 +6,8 @@
 int main()
 {
     using namespace printable;
-    std::stringstream ss;
-    ss << 1.214;
-
-    std::cout << "Hello World!\n";
 
     println("{1} {0} ({})", " world!", "Hello");
+
+    std::cout << format("{} || {}", 3.1415, 10000L) << '\n';
 }

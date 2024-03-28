@@ -11,5 +11,5 @@ int main()
 
     std::cout << "Hello World!\n";
 
-    println("{1} {0} ({}) {}", " world!", "Hello");
+    println("{1} {0} ({})", " world!", "Hello");
 }

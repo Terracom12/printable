@@ -54,7 +54,7 @@ template <typename... FormatableTypes>
 class FormatArgs
 {
 public:
-    using Types = heterogeneous_variant_t<std::variant<Formatable<FormatableTypes>...>>;
+    using Types = util::heterogeneous_variant_t<std::variant<Formatable<FormatableTypes>...>>;
     FormatArgs(Formatable<FormatableTypes>... formatables)
         : data{Types{formatables}...}
     {}

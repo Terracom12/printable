@@ -4,6 +4,7 @@
 #include <variant>
 
 namespace printable {
+namespace util {
 
 #ifndef __cpp_lib_logical_traits
 // Based off implementation at: https://en.cppreference.com/w/cpp/types/disjunction
@@ -55,4 +56,6 @@ struct heterogeneous_variant<Variant<Ts...>> : unique_impl<Variant<>, Ts...>
 
 template <class Variant>
 using heterogeneous_variant_t = typename heterogeneous_variant<Variant>::type;
+
+} // namespace util
 } // namespace printable

@@ -1,8 +1,12 @@
 #pragma once
 
+#include "FormatString.h"
+#include "format.h"
 #include "util.h"
 
+#include <atomic>
 #include <cassert>
+#include <cstddef>
 #include <initializer_list>
 #include <iostream>
 #include <sstream>
@@ -14,13 +18,6 @@
 #include <vector>
 
 namespace printable {
-
-struct FormatOptions
-{
-    bool isDebug = false;
-    bool prettyPrint = false;
-    enum class MODE { BINARY, OCTAL, DECIMAL, HEX, NONE } NumericEncodingMode = MODE::NONE;
-};
 
 template <typename T>
 class Formatable
@@ -37,13 +34,23 @@ public:
     {
         this->options = options;
     };
+
     std::string format() const
     {
-        // TODO: Improve. Make template specializations.
+        std::string result = formatSpecific();
+        return options.formatted(result);
+    };
+    std::enable_if_t<true, std::string> formatSpecific() const
+    {
         std::stringstream ss;
         ss << data;
         return ss.str();
-    };
+    }
+
+    constexpr size_t getArgNum() const
+    {
+        return options.argumentNumber;
+    }
 
 private:
     const T& data;

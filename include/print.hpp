@@ -1,6 +1,6 @@
 #pragma once
 
-#include "format.h"
+#include "format.hpp"
 #include <iostream>
 
 namespace printable {

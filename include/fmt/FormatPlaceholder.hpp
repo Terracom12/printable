@@ -1,27 +1,27 @@
 #pragma once
 
+#include <iostream>
 #include <stdexcept>
 #include <string>
 
 namespace printable {
 
-// FIXME: Using Rust idioms. Not ideal for C++.
-struct FormatPlaceholder
+// FIXME: Using Rust idioms. Not ideal for C++. Constructor?
+class FormatPlaceholder
 {
 private:
-    FormatPlaceholder();
+    FormatPlaceholder() = default;
 
 public:
     static FormatPlaceholder parse(std::string optionsStr);
 
-protected:
-    bool isDebug = false;
-    bool prettyPrint = false;
-    enum class NumericMode { BINARY, OCTAL, DECIMAL, HEX, NONE } encodingMode = NumericMode::NONE;
-    enum class Direction { LEFT = '<', RIGHT = '>', CENTER = '^' } padDirection = Direction::RIGHT;
-    std::size_t padding = 0;
-    char paddingChar = ' ';
-    std::size_t position = 0;
+    const bool isDebug = false;
+    const bool isPrettyPrint = false;
+    const enum class Direction { NONE = 0, LEFT = '<', RIGHT = '>', CENTER = '^' } alignment = Direction::NONE;
+    const std::size_t padding = 0;
+    const char paddingChar = ' ';
+
+    const std::size_t position = 0;
 };
 
 inline FormatPlaceholder FormatPlaceholder::parse(std::string optionsStr)
@@ -34,7 +34,12 @@ inline FormatPlaceholder FormatPlaceholder::parse(std::string optionsStr)
         return {};
     }
 
-    FormatPlaceholder options{};
+    bool isDebug = false;
+    bool isPrettyPrint = false;
+    Direction alignment = Direction::NONE;
+    std::size_t padding = 0;
+    char paddingChar = ' ';
+    std::size_t position = 0;
 
     // TODO: Even more exception handling
     // TODO: Custom format exception
@@ -43,7 +48,7 @@ inline FormatPlaceholder FormatPlaceholder::parse(std::string optionsStr)
     try {
         std::size_t nextPos = 0;
         std::size_t argumentNum = std::stoi(optionsStr, &nextPos);
-        options.position = argumentNum;
+        position = argumentNum;
         optionsStr.erase(0, nextPos);
     } catch (const std::invalid_argument&) {
         // TODO
@@ -52,7 +57,7 @@ inline FormatPlaceholder FormatPlaceholder::parse(std::string optionsStr)
     }
 
     if (optionsStr.empty()) {
-        return options;
+        return {isDebug, isPrettyPrint, alignment, padding, paddingChar, position};
     }
 
     if (optionsStr[0] == ':') {
@@ -60,11 +65,11 @@ inline FormatPlaceholder FormatPlaceholder::parse(std::string optionsStr)
     }
 
     if (optionsStr.empty()) {
-        return options;
+        return {isDebug, isPrettyPrint, alignment, padding, paddingChar, position};
     }
 
     if (optionsStr[0] != '<' && optionsStr[0] != '^' && optionsStr[0] != '>') {
-        options.paddingChar = optionsStr[0];
+        paddingChar = optionsStr[0];
         optionsStr.erase(0, 1);
     }
 
@@ -74,44 +79,20 @@ inline FormatPlaceholder FormatPlaceholder::parse(std::string optionsStr)
     }
     switch (optionsStr[0]) {
     case '<':
-        options.padDirection = Direction::LEFT;
+        alignment = Direction::LEFT;
         optionsStr.erase(0, 1);
         break;
     case '^':
-        options.padDirection = Direction::CENTER;
+        alignment = Direction::CENTER;
         optionsStr.erase(0, 1);
         break;
     case '>':
-        options.padDirection = Direction::RIGHT;
+        alignment = Direction::RIGHT;
         optionsStr.erase(0, 1);
         break;
     }
 
-    return options;
-}
-
-inline std::string FormatOptions::formatted(std::string str) const
-{
-    return pad(str);
-}
-
-inline std::string FormatOptions::pad(std::string str) const
-{
-    ssize_t padDiff = padding - str.size();
-
-    if (padDiff <= 0) {
-        return str;
-    }
-
-    switch (padDirection) {
-    case Direction::LEFT:
-        return str + std::string(padDiff, paddingChar);
-    case Direction::RIGHT:
-        return std::string(padDiff, paddingChar) + str;
-    case Direction::CENTER:
-    default:
-        [[unreachable]]
-    }
+    return {isDebug, isPrettyPrint, alignment, padding, paddingChar, position};
 }
 
 } // namespace printable
